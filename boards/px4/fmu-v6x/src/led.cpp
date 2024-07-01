@@ -47,6 +47,7 @@
 
 #include <nuttx/board.h>
 #include <arch/board/board.h>
+#include <drivers/drv_neopixel.h>
 
 /*
  * Ideally we'd be able to get these from arm_internal.h,
@@ -87,12 +88,18 @@ static uint32_t g_ledmap[] = {
 
 #endif
 
+static neopixel::NeoLEDData led_data[BOARD_HAS_N_S_RGB_LED];
+
 __EXPORT void led_init(void)
 {
 	for (size_t l = 0; l < (sizeof(g_ledmap) / sizeof(g_ledmap[0])); l++) {
 		if (g_ledmap[l] != 0) {
 			stm32_configgpio(g_ledmap[l]);
 		}
+	}
+
+	if (neopixel_init(led_data, BOARD_HAS_N_S_RGB_LED) != 0) {
+		return;  // Return if initialization fails
 	}
 }
 
@@ -117,17 +124,43 @@ static bool phy_get_led(int led)
 
 __EXPORT void led_on(int led)
 {
-	phy_set_led(xlat(led), true);
+	if (led == BOARD_LED_GREEN || led == BOARD_LED_BLUE || led == BOARD_LED_RED) {
+		if (led == BOARD_LED_GREEN) {
+			led_data[0].data.l = 0x00FF00; // Green
+		} else if (led == BOARD_LED_BLUE) {
+			led_data[0].data.l = 0x0000FF; // Blue
+		} else if (led == BOARD_LED_RED) {
+			led_data[0].data.l = 0xFF0000; // Red
+		}
+		//neopixel_write(led_data, BOARD_HAS_N_S_RGB_LED);
+	} else {
+		phy_set_led(xlat(led), true);
+	}
 }
 
 __EXPORT void led_off(int led)
 {
-	phy_set_led(xlat(led), false);
+	if (led == BOARD_LED_GREEN || led == BOARD_LED_BLUE || led == BOARD_LED_RED) {
+		led_data[0].data.l = 0x000000; // Off
+		//neopixel_write(led_data, BOARD_HAS_N_S_RGB_LED);
+	} else {
+		phy_set_led(xlat(led), false);
+	}
 }
 
 __EXPORT void led_toggle(int led)
 {
-	phy_set_led(xlat(led), !phy_get_led(xlat(led)));
+	if (led == BOARD_LED_GREEN || led == BOARD_LED_BLUE || led == BOARD_LED_RED) {
+		static bool state = false;
+		if (state) {
+			led_off(led);
+		} else {
+			led_on(led);
+		}
+		state = !state;
+	} else {
+		phy_set_led(xlat(led), !phy_get_led(xlat(led)));
+	}
 }
 
 #ifdef CONFIG_ARCH_LEDS

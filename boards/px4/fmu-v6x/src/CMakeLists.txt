@@ -53,7 +53,7 @@ else()
 		can.c
 		i2c.cpp
 		init.c
-		led.c
+		led.cpp
 		mtd.cpp
 		sdio.c
 		spi.cpp
@@ -71,5 +71,6 @@ else()
 			nuttx_arch # sdio
 			nuttx_drivers # sdio
 			px4_layer
+			platform_srgbled
 	)
 endif()
