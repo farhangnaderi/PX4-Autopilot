@@ -56,6 +56,20 @@
 
 #undef TRACE_PINS
 
+#define GPIO_RGB_S            /* PB0  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTB|GPIO_PIN0)
+#define BOARD_SRGBLED_PORT    STM32_GPIOB_ODR
+#define BOARD_SRGBLED_BIT     0
+
+#define BOARD_HAS_N_S_RGB_LED 4
+
+#if defined(USE_S_RGB_LED_DMA)
+#  define S_RGB_LED_DMA              	 DMAMAP_DMA12_TIM1CH2_1
+#  define S_RGB_LED_TIMER                1   /* timer 12    */
+#  define S_RGB_LED_CHANNEL              2   /* channel 1  */
+// #  define S_RGB_LED_CHANNELN             1   /* channel 2N */
+#  define S_RGB_LED_TIM_GPIO             GPIO_TIM1_CH2OUT_2 // GPIO_TIM12_CH2OUT_2
+#endif
+
 /* PX4IO connection configuration */
 
 #define BOARD_USES_PX4IO_VERSION       2

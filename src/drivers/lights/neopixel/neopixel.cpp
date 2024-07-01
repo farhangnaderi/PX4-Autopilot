@@ -173,7 +173,7 @@ $ neopixel -n 8
 To drive all available leds.
 )DESCR_STR");
 
-PRINT_MODULE_USAGE_NAME("newpixel", "driver");
+PRINT_MODULE_USAGE_NAME("neopixel", "driver");
 PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
 return 0;
 }

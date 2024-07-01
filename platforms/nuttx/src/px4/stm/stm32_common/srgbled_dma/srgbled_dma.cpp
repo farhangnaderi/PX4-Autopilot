@@ -181,7 +181,7 @@
 #elif S_RGB_LED_TIMER == 12
 # define S_RGB_LED_BASE                STM32_TIM12_BASE
 # define S_RGB_LED_CLOCK               STM32_APB1_TIM12_CLKIN
-# define S_RGB_LED_CLOCK_ENABLE        RCC_APB1ENR_TIM12EN
+# define S_RGB_LED_CLOCK_ENABLE        RCC_APB1LENR_TIM12EN
 # define S_RGB_LED_CLOCK_POWER_REG     STM32_RCC_APB1ENR
 # if defined(CONFIG_STM32_TIM12)
 #  error Must not set CONFIG_STM32_TIM12 when S_RGB_LED_TIMER is 12
@@ -374,17 +374,26 @@ extern int neopixel_write(neopixel::NeoLEDData *led_data, int number_of_packages
 
 	// Set up the DMA Operations
 
-	stm32_dmasetup(dma_handle,
-		       _TIM_REG(STM32_GTIM_DMAR_OFFSET),
-		       (uint32_t) bits,
-		       arraySize(bits),
-		       SLED_DMA_SCR);
+	// stm32_dmasetup(dma_handle,
+	// 	       _TIM_REG(STM32_GTIM_DMAR_OFFSET),
+	// 	       (uint32_t) bits,
+	// 	       arraySize(bits),
+	// 	       SLED_DMA_SCR);
+
+	struct stm32_dma_config_s config;
+	config.paddr = _TIM_REG(STM32_GTIM_DMAR_OFFSET);
+	config.maddr = (uint32_t) bits;
+	config.ndata = arraySize(bits);
+	config.cfg1 = SLED_DMA_SCR;
+	config.cfg2 = 0;
+	stm32_dmasetup(dma_handle, &config);
 
 	// atomic operations
 	irqstate_t flags = px4_enter_critical_section();
 
 	// Prep the timer for update, start with the first bit.
-	SLED_rCCR = bits[0];
+	//SLED_rCCR = bits[0];
+	SLED_rCCR = 1;
 	rEGR |= GTIM_EGR_UG;
 	rCR1 |= GTIM_CR1_CEN;  // Start the Timer
 
